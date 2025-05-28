@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Monaco Editor in PyWebView</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" href="icon.ico" type="image/x-icon">
+    <link rel="stylesheet" href="node_modules/@xterm/xterm/css/xterm.css" />
+    <script src="node_modules/@xterm/xterm/lib/xterm.js"></script>
+    <script src="node_modules/xterm-addon-fit/lib/xterm-addon-fit.js"></script>
+</head>
+<body>
+    <div class="file-bottom-menu hidden">
+        <button class="context-menu-button">Close</button>
+        <button class="context-menu-button">Copy File Name</button>
+        <button class="context-menu-button">Copy Path</button>
+        <button class="context-menu-button" id="bottom-file-menu-anchor">Set Anchor for Workspace</button>
+    </div>
+    <div class="top-nav">
+        <div class="frame">
+            <button class="atr-file frame-button">File</button>
+            <button class="atr-edit frame-button">Edit</button>
+            <button class="atr-run frame-button">Run</button>
+            <button class="atr-terminal frame-button">Terminal</button>
+            <button class="atr-gpt frame-button">GPT</button>
+        </div>
+        <div id="file-menu" class="menu">
+            <button class="menu-item"><p>New File</p><p>Ctrl + N</p></button>
+            <button class="menu-item"><p>Open File</p><p>Ctrl + O</p></button>
+            <button class="menu-item"><p>Open Folder</p><p></p></button>
+            <button class="menu-item" onclick="saveFile()"><p>Save File</p><p>Ctrl + S</p></button>
+        </div>
+        <div id="edit-menu" class="menu">
+            <button class="menu-item"><p>Undo</p><p>Ctrl + Z</p></button>
+            <button class="menu-item"><p>Redo</p><p>Ctrl + Y</p></button>
+            <button class="menu-item"><p>Cut</p><p>Ctrl + C</p></button>
+            <button class="menu-item"><p>Copy</p><p>Ctrl + C</p></button>
+            <button class="menu-item"><p>Paste</p><p>Ctrl + V</p></button>
+            <button class="menu-item"><p>Find</p><p>Ctrl + F</p></button>
+        </div>
+        <div id="run-menu" class="menu">
+            <button class="menu-item" onclick="runCode()"><p>Start</p><p>F5</p></button>
+            <button class="menu-item" disabled><p>Stop</p><p>Shift + F5</p></button>
+            <button class="menu-item" disabled><p>Restart</p><p>Ctrl + Shift + F5</p></button>
+        </div>
+        <div id="terminal-menu" class="menu">
+            <button class="menu-item" onclick="openTerminal()"><p>Open Terminal</p><p>Ctrl + `</p></button>
+            <button class="menu-item" onclick="closeTerminal()"><p>Close Terminal</p><p>Ctrl + `</p></button>
+            <button class="menu-item" onclick="killTerminal()">Kill Terminal</button>
+            <button class="menu-item" onclick="restartTerminal()"><p>Restart Terminal</p><p>Ctrl + Alt + `</p></button>
+        </div>
+        <div id="gpt-menu" class="menu">
+            <button class="menu-item" style="padding: 0 10px;" onclick="openApiPopup()"><p>Enter API Key</p><iconify-icon class="ai-api-tick" icon="qlementine-icons:check-tick-small-16"></iconify-icon></button>
+        </div>
+        <div class="drag-bar"></div>
+        <div class="window-controls">
+            <button onclick="relaodWindow()" class="reload-button">Reload</button>
+            <button class="control-button minimize"><iconify-icon icon="mingcute:minimize-fill"></iconify-icon></button>
+            <button class="control-button maximize"><iconify-icon icon="fluent:arrow-maximize-16-filled"></iconify-icon></button>
+            <!-- <button class="control-button maximize"><iconify-icon icon="mdi:maximize"></iconify-icon></button> -->
+            <button class="control-button close"><iconify-icon icon="mingcute:close-fill"></iconify-icon></button>
+        </div>
+    </div>
+    <div class="content">
+        <div onclick="this.style.display = 'none'" class="drag-overlay"><h1>Leave Files and Folders</h1></div>
+        <div class="windows">
+            <div class="api-popup">
+                <input placeholder="Enter your API Key" type="text">
+                <button onclick="saveAiApiKey()">Confirm Key</button>
+                <a href="https://openrouter.ai/deepseek/deepseek-r1:free/api">Don't have API Key?</a>
+            </div>
+            <div class="answer-popups">
+            </div>
+            <div class="terminal-element"></div>
+            <div class="home window"></div>
+        </div>
+        <div class="chat-window">
+            <div class="chat-window-header">
+                <h1>AI CHAT</h1>
+                <nav style="display: flex;">
+                    <button class="ai-chat-panel-button" title="Clear History" onclick="clearChatHistory()">
+                        <iconify-icon icon="fluent:history-dismiss-20-filled"></iconify-icon>
+                    </button>
+                    <button class="ai-chat-panel-button active" onclick="chatPanelToRight(this)">
+                        <iconify-icon icon="proicons:panel-right-open"></iconify-icon>
+                    </button>
+                    <button class="ai-chat-panel-button" onclick="chatPanelToLeft(this)">
+                        <iconify-icon icon="proicons:panel-left-open"></iconify-icon>
+                    </button>
+                    <button class="ai-chat-panel-button" onclick="closeChatPanel()">
+                        <iconify-icon icon="si:close-fill"></iconify-icon>
+                    </button>
+                </nav>
+            </div>
+            <div class="ai-chat"></div>
+            <div class="prompt-input">
+                <input type="text" class="prompt-input-field" placeholder="Enter your prompt here...">
+                <nav class="prompt-input-bottom">
+                    <label for="read-code-checkbox" class="read-code-button"><iconify-icon icon="basil:book-check-outline"></iconify-icon>Read Code<input style="display: none;" id="read-code-checkbox" type="checkbox"></label>            
+                    <button class="send-prompt-button" onclick="sendPrompt()" disabled><iconify-icon icon="fluent:send-16-filled"></iconify-icon></button>
+                </nav>
+            </div>
+        </div>
+        <div class="explorer">
+            <p class="directory-title"></p>
+            <div class="files-explorer"></div>
+        </div>
+    </div>
+    <div class="bottom-nav">
+        <div class="file-trash-bottom">
+            <iconify-icon icon="entypo:cross"></iconify-icon>
+        </div>
+
+        <nav class="bottom-files"></nav>
+        <button class="explorer-button"><iconify-icon icon="icon-park-solid:up-one"></iconify-icon></button>
+    </div>
+    <div id="resizer1" class="resizer"></div>
+    <div id="resizer2" class="resizer"></div>
+    <div id="resizer3" class="resizer"></div>
+    <div id="resizer4" class="resizer"></div>
+</body>
+<script>
+    var require = { paths: { 'vs': 'node_modules/monaco-editor/min/vs' } };
+</script>
+<script src="https://code.iconify.design/iconify-icon/2.3.0/iconify-icon.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+<script src="node_modules/monaco-editor/min/vs/loader.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script src="script.js"></script>
+<script src="code.js"></script>
+<script src="language.js"></script>
+<script src="open-file.js"></script>
+<script src="bring-file.js"></script>
+<script src="reload.js"></script>
+<script src="interactlib.js"></script>
+<script src="save.js"></script>
+<script src="window.js"></script>
+<script src="terminal.js"></script>
+<script src="run.js"></script>
+<script src="right-click.js"></script>
+<script src="onwebviewloaded.js"></script>
+<script src="ai.js"></script>
+<script src="shortcuts.js"></script>
+<script type="text/javascript"></script>
+</html>
