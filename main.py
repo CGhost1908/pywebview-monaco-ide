@@ -1,32 +1,37 @@
 import webview
 import os
-import time
 import threading
 import base64
-from webview.dom import DOMEventHandler
 import json
-from bs4 import BeautifulSoup
-from PyQt5.QtCore import QFileSystemWatcher, QCoreApplication
+import time
 import sys
+import numpy as np
+import pandas as pd
 import subprocess
 import asyncio
 import websockets
 import chardet
+import requests
+import io
+
+from webview.dom import DOMEventHandler
+from PyQt5.QtCore import QFileSystemWatcher, QCoreApplication
 from watchdog.events import FileSystemEvent, FileSystemEventHandler, FileMovedEvent
 from watchdog.observers import Observer
-
-import requests
-
-from transformers import AutoTokenizer, AutoModelForCausalLM
-import torch
 from google import generativeai as genai
-from transformers import pipeline
-from llama_cpp import Llama
-from transformers import LlamaForCausalLM, LlamaTokenizer
-from google.cloud import aiplatform
 from google import genai
 
-client = genai.Client(api_key="API_KEY")
+from models.linear_regression import AutoLinearRegression
+from models.logistic_regression import AutoLogisticRegression
+from models.decision_tree import train_decision_tree, save_decision_tree_model
+from models.random_forest import train_random_forest, save_random_forest_model
+from models.knn import train_knn, save_knn_model
+from models.kmeans import train_kmeans, save_kmeans_model
+
+autolinear = AutoLinearRegression()
+autologistic = AutoLogisticRegression()
+
+client = genai.Client(api_key="AIzaSyAGmGlCZm8QQQe9jdOxpjBlnrCmeqJJ7NM")
 
 CONFIG_FILE = "config.json"
 
@@ -144,7 +149,6 @@ def bind(window):
             elements[0].events.dragover += DOMEventHandler(on_drag, True, True, debounce=500)
             elements[0].events.drop += DOMEventHandler(on_drop, True, True)
 
-
 #Directory Observer
 directoryObserver = None
 
@@ -161,7 +165,7 @@ class DirectoryWatcher(FileSystemEventHandler):
 def watch_directory(path):
     global directoryObserver
 
-    if directoryObserver:
+    if directoryObserver and directoryObserver.is_alive():
         directoryObserver.stop()
         directoryObserver.join()
 
@@ -260,13 +264,38 @@ class API:
         with open(CONFIG_FILE, 'w') as f:
             json.dump(self.config, f, indent=4)
 
+    def save_workspace(self, directory):
+        if "workspaces" not in self.config:
+            self.config["workspaces"] = []
+
+        for ws in self.config["workspaces"]:
+            if ws.get("directory") == directory:
+                return
+
+        new_workspace = {
+            "directory": directory,
+            "bottom_files": [],
+            "current_file": None,
+            "anchor_file": None,
+            "editors": []
+        }
+
+        self.config["workspaces"].append(new_workspace)
+        self.save_config()
+
+    def get_workspace(self):
+        if "workspaces" in self.config:
+            return self.config["workspace"]   
+
     def get_directory(self):
         if "directory" in self.config:
             watch_directory(self.config["directory"])
+            self.save_workspace(self.config["directory"])
             return self.config["directory"]
         else:
             desktop_path = os.path.join(os.path.expanduser("~"), "Desktop")
             self.config["directory"] = desktop_path
+            self.save_workspace(self.config[desktop_path])
             self.save_config()
             watch_directory(desktop_path)
             return desktop_path
@@ -274,7 +303,15 @@ class API:
     def set_directory(self, directory):
         self.config["directory"] = directory
         self.save_config()
+        self.save_workspace(directory)
         watch_directory(directory)
+
+    def get_active_workspace(self):
+        workspace_dir = self.get_directory()
+        for ws in self.config.get("workspaces", []):
+            if ws.get("directory") == workspace_dir:
+                return ws
+        return None
 
     def save_explorer(self, display):
         if display == "flex":
@@ -286,33 +323,48 @@ class API:
     def get_explorer(self):
         if "explorer" in self.config:
             return self.config["explorer"]      
-
+    
     def save_bottom_files(self, files):
-        self.config["bottom_files"] = files
-        self.save_config()
+        ws = self.get_active_workspace()
+        if ws:
+            ws["bottom_files"] = files
+            self.save_config()
 
     def get_bottom_files(self):
-        if "bottom_files" in self.config:
-            return self.config["bottom_files"]
-        else:
-            return []
-        
+        ws = self.get_active_workspace()
+        return ws.get("bottom_files", []) if ws else []
+
+    def save_editors(self, editors):
+        ws = self.get_active_workspace()
+        if ws:
+            ws["editors"] = editors
+            self.save_config()
+
+    def get_editors(self):
+        ws = self.get_active_workspace()
+        return ws.get("editors", []) if ws else []
+
     def set_current_file(self, name, directory):
-        self.config["current_file"] = {'name': name, 'directory': directory}
-        self.save_config()
+        ws = self.get_active_workspace()
+        if ws:
+            ws["current_file"] = {"name": name, "directory": directory}
+            self.save_config()
 
     def get_current_file(self):
-        if "current_file" in self.config:
-            return self.config["current_file"]   
+        ws = self.get_active_workspace()
+        return ws.get("current_file", None) if ws else None
 
     def set_anchor_file(self, anchor):
-        self.config["anchor_file"] = anchor
-        self.save_config()
-         
+        ws = self.get_active_workspace()
+        if ws:
+            ws["anchor_file"] = anchor
+            self.save_config()
+
     def get_anchor_file(self):
-         if "anchor_file" in self.config:
-            return self.config["anchor_file"]
-        
+        ws = self.get_active_workspace()
+        return ws.get("anchor_file", None) if ws else None
+
+
     def save_file(self, directory, content):
         if not os.path.exists(directory):
             os.makedirs(os.path.dirname(directory), exist_ok=True)
@@ -328,14 +380,6 @@ class API:
 
     def watch_file(self, path):
         watch_file(path)
-
-    def save_editors(self, editors):
-        self.config["editors"] = editors
-        self.save_config()
-
-    def get_editors(self):
-        if "editors" in self.config:
-            return self.config["editors"]
         
     def set_ai_api_key(self, key):
         self.config["ai_api_key"] = key
@@ -365,7 +409,67 @@ class API:
             contents=history
         )
         return response.text
+    
+    def train_model(self, model_name, payload):
+        try:
+            b64 = payload['base64_csv']
+            decoded = base64.b64decode(b64).decode('utf-8')
+            df = pd.read_csv(io.StringIO(decoded))
 
+            features = payload.get('features', [])
+            target = payload.get('target', '')
+
+            if (target not in df.columns or any(col not in df.columns for col in features)) and model_name != 'kmeans':
+                return {'error': 'CSV Error: Feature or target column not found in the uploaded CSV.'}
+
+            X = df[features]
+            y = df[target] if target else None
+
+            if model_name == 'linear-regression':
+                return autolinear.fit(X, y)
+            elif model_name == 'logistic-regression':
+                return autologistic.fit(X, y)
+            elif model_name == 'decision-tree':
+                return train_decision_tree(X, y)
+            elif model_name == 'random-forest':
+                return train_random_forest(X, y)
+            elif model_name == 'knn':
+                return train_knn(X, y)
+            elif model_name == 'kmeans':
+                return train_kmeans(X)
+
+            return {'error': 'Model not found.'}
+
+        except Exception as e:
+            return {'error': str(e)}
+        
+    def save_linear_regression(self, path):
+        return autolinear.save(path)
+    
+    def save_logistic_regression(self, path):
+        return autologistic.save(path)
+    
+    def save_decision_tree(self, path):
+        return save_decision_tree_model(path)
+        
+    def save_random_forest(self, path):
+        return save_random_forest_model(path)
+    
+    def save_knn(self, path):
+        return save_knn_model(path)
+    
+    def save_kmeans(self, path):
+        return save_kmeans_model(path)
+        
+    def select_folder(self):
+        folder_path = webview.windows[0].create_file_dialog(dialog_type=webview.FOLDER_DIALOG)
+        if folder_path:
+            return folder_path[0]
+        return None
+    
+    def send_path_from_project(self, file):
+        main_dir = os.path.dirname(os.path.abspath(__file__))
+        return os.path.join(main_dir, file)
 
 api = API()
 

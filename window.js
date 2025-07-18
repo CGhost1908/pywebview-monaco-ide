@@ -89,7 +89,3 @@ setupResizer('resizer1', 'left');
 setupResizer('resizer2', 'right');  
 setupResizer('resizer3', 'top');    
 setupResizer('resizer4', 'bottom'); 
-
-function fibonacci(number){
-    
-}

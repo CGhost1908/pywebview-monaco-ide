@@ -605,7 +605,7 @@ button{
     padding: 10px !important;
 }
 
-.file-bottom-menu{
+.context-menu{
     padding: 5px 0;
     display: flex;
     align-items: center;
@@ -620,7 +620,7 @@ button{
     box-shadow: 0 0 8px rgba(43, 1, 101, 0.5);
 }
 
-.file-bottom-menu.hidden{
+.context-menu.hidden{
     display: none;
 }
 
@@ -1055,4 +1055,504 @@ code *{
     height: 12px;
     display: flex;
     margin: 0;
+}
+
+.ml-tab{
+    width: calc(100% - 20px);
+    align-items: center;
+    border-radius: 12px;
+    border: 1px solid #3f3f4f;
+    font-family: 'Inter', -apple-system, sans-serif;
+    color: #e0e0e0;
+    margin: 10px;
+}
+
+.ml-title{
+    display: flex;
+    justify-content: center;
+    height: 100%;
+    width: 300px;
+    flex-shrink: 0;
+    background: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url("https://futurumgroup.com/wp-content/uploads/2024/02/Demystifying-AI-ML-and-Deep-Learning-.jpg");
+    background-size: cover;
+    background-position: center;
+    opacity: 0.8;
+    border-radius: 12px 0 0 12px;
+}
+
+.ml-title h1{
+    width: min-content;
+    font-size: 48px;
+    color: #fff;
+    margin-top: 50px;
+    opacity: 1;
+}
+
+.ml-form{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    width: 100%;
+    background-color: #00000057;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(2px);
+    margin: auto;
+    border-radius: 0 12px 12px 0;
+}
+
+.linear-regression-nav, 
+.linear-regression-target-label, 
+.linear-regression-features-label,
+.logistic-regression-nav,
+.logistic-regression-target-label,
+.logistic-regression-features-label,
+.decision-tree-nav,
+.decision-tree-target-label,
+.decision-tree-features-label,
+.random-forest-nav,
+.random-forest-target-label,
+.random-forest-features-label,
+.knn-nav,
+.knn-target-label,
+.knn-features-label,
+.kmeans-nav,
+.kmeans-target-label,
+.kmeans-features-label,
+.linear-regression-button-nav,
+.logistic-regression-button-nav,
+.decision-tree-button-nav,
+.random-forest-button-nav,
+.kmeans-button-nav,
+.knn-button-nav{
+    display: flex;
+    opacity: 0;
+    flex-direction: column;
+    pointer-events: none;
+    transform: translateY(20%);
+    transition: all 1s ease;
+}
+
+.linear-regression-csv-label,
+.logistic-regression-csv-label,
+.decision-tree-csv-label,
+.random-forest-csv-label,
+.knn-csv-label,
+.kmeans-csv-label{
+    display: flex;
+    transform: translateY(70%);
+    align-items: center;
+    flex-direction: column;
+    transition: all 1s ease;
+}
+
+.linear-regression-nav p,
+.logistic-regression-nav p,
+.decision-tree-nav p,
+.random-forest-nav p,
+.kmeans-nav p,
+.knn-nav p {
+    text-align: center;
+    border-bottom: 2px solid #4351ec;
+    line-height: 22px;
+}
+
+.linear-regression-features-label,
+.logistic-regression-features-label,
+.decision-tree-features-label,
+.random-forest-features-label,
+.kmeans-features-label,
+.knn-features-label {
+    width: 100%;
+    margin: 0 20px 10px 0;
+}
+
+#linear-regression-features,
+#logistic-regression-features,
+#decision-tree-features,
+#random-forest-features,
+#kmeans-features,
+#knn-features {
+    outline: none;
+    border: none;
+    background-color: transparent;
+    color: #e0e0e0;
+    font-size: 16px;
+    font-family: 'Inter', -apple-system, sans-serif;
+    overflow-y: auto; 
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.linear-regression-target-label,
+.logistic-regression-target-label,
+.decision-tree-target-label,
+.random-forest-target-label,
+.kmeans-target-label,
+.knn-target-label {
+    width: 100%;
+}
+
+#linear-regression-target,
+#logistic-regression-target,
+#decision-tree-target,
+#random-forest-target,
+#kmeans-target,
+#knn-target {
+    outline: none;
+    border: none;
+    background-color: transparent;
+    color: #e0e0e0;
+    font-size: 16px;
+    font-family: 'Inter', -apple-system, sans-serif;
+    overflow-y: auto; 
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.linear-regression-train-button,
+.logistic-regression-train-button,
+.decision-tree-train-button,
+.random-forest-train-button,
+.kmeans-train-button,
+.knn-train-button,
+.linear-regression-edit-button,
+.logistic-regression-edit-button,
+.decision-tree-edit-button,
+.random-forest-edit-button,
+.kmeans-edit-button,
+.knn-edit-button {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    font-weight: bold;
+    margin-top: 20px;
+    border: none;
+    outline: none;
+    background-color: #6b32fc;
+    border-radius: 20px;
+    border: 3px solid #ffffff33;
+    padding: 10px 20px;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 16px rgba(107, 50, 252, 0.25);
+}
+
+.linear-regression-train-button iconify-icon,
+.logistic-regression-train-button iconify-icon,
+.decision-tree-train-button iconify-icon,
+.random-forest-train-button iconify-icon,
+.kmeans-train-button iconify-icon,
+.knn-train-button iconify-icon,
+.linear-regression-edit-button iconify-icon,
+.logistic-regression-edit-button iconify-icon,
+.decision-tree-edit-button iconify-icon,
+.random-forest-edit-button iconify-icon,
+.kmeans-edit-button iconify-icon,
+.knn-edit-button iconify-icon {
+    font-size: 20px;
+    margin-right: 10px;
+    color: #fff;
+    transition: all 0.6s ease;
+}
+
+.linear-regression-train-button:hover,
+.logistic-regression-train-button:hover,
+.decision-tree-train-button:hover,
+.random-forest-train-button:hover,
+.kmeans-train-button:hover,
+.knn-train-button:hover,
+.linear-regression-edit-button:hover,
+.logistic-regression-edit-button:hover,
+.decision-tree-edit-button:hover,
+.random-forest-edit-button:hover,
+.kmeans-edit-button:hover,
+.knn-edit-button:hover {
+    scale: 1.1;
+    cursor: pointer;
+    box-shadow: 0 4px 24px rgba(107, 50, 252, 0.45);
+}
+
+.linear-regression-train-button:hover > iconify-icon,
+.logistic-regression-train-button:hover > iconify-icon,
+.decision-tree-train-button:hover > iconify-icon,
+.random-forest-train-button:hover > iconify-icon,
+.kmeans-train-button:hover > iconify-icon,
+.knn-train-button:hover > iconify-icon{
+    rotate: 360deg;
+    scale: 1.2;
+}
+
+.linear-regression-edit-button:hover > iconify-icon,
+.logistic-regression-edit-button:hover > iconify-icon,
+.decision-tree-edit-button:hover > iconify-icon,
+.random-forest-edit-button:hover > iconify-icon,
+.kmeans-edit-button:hover > iconify-icon,
+.knn-edit-button:hover > iconify-icon {
+    scale: 1.2;
+}
+
+.linear-regression-train-button:disabled,
+.logistic-regression-train-button:disabled,
+.decision-tree-train-button:disabled,
+.random-forest-train-button:disabled,
+.kmeans-train-button:disabled,
+.knn-train-button:disabled {
+    pointer-events: none !important;
+    filter: grayscale(100%);
+}
+
+.ml-result{
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    width: 100%;
+    background-color: #00000057;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(2px);
+    margin: auto;
+    border-radius: 0 12px 12px 0;
+}
+
+.loader{ 
+    width:500px; 
+    margin:0 auto;
+    border-radius:10px;
+    border:4px solid transparent;
+    position:relative;
+    padding:1px;
+}
+
+.loader:before{
+    content:'';
+    border:1px solid #fff; 
+    border-radius:10px;
+    position:absolute;
+    top:-4px; 
+    right:-4px; 
+    bottom:-4px; 
+    left:-4px;
+}
+
+.loader .loaderBar{ 
+    position:absolute;
+    border-radius:10px;
+    top:0;
+    right:100%;
+    bottom:0;
+    left:0;
+    background:#fff; 
+    width:0;
+    animation:borealisBar 2s linear infinite;
+}
+
+@keyframes borealisBar{
+    0% {
+        left:0%;
+        right:100%;
+        width:0%;
+    }
+    10% {
+        left:0%;
+        right:75%;
+        width:25%;
+    }
+    90% {
+        right:0%;
+        left:75%;
+        width:25%;
+    }
+    100% {
+        left:100%;
+        right:0%;
+        width:0%;
+    }
+}
+
+.ml-result .message{
+    padding: 20px;
+    user-select: text;
+    display: flex;
+    flex-direction: column;
+    font-size: 18px;
+}
+
+.ml-result .message .error{
+    color: #cc4d46;
+    font-size: 48px;
+}
+
+.linear-regression-result-score, .linear-regression-model-save,
+.logistic-regression-result-score, .logistic-regression-model-save,
+.decision-tree-result-score, .decision-tree-model-save,
+.random-forest-result-score, .random-forest-model-save,
+.kmeans-result-score, .kmeans-model-save,
+.knn-result-score, .knn-model-save {
+    text-align: center;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 40%;
+    max-height: 300px;
+    overflow-y: auto;
+    border-radius: 12px;
+    background-color: #00000057;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    margin: 20px;
+}
+
+.linear-regression-model-save,
+.logistic-regression-model-save,
+.decision-tree-model-save,
+.random-forest-model-save,
+.kmeans-model-save,
+.knn-model-save {
+    justify-content: center;
+}
+
+
+.train-button{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 40px;
+    border: none;
+    outline: none;
+    color: #fff;
+    font-size: 16px;
+    border-radius: 20px;
+    font-weight: bold;
+    background-color: #6b32fc;
+    border: 3px solid #ffffff33;
+    padding: 10px 20px;
+    margin-top: 20px;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 16px rgba(107, 50, 252, 0.25);
+}
+
+.train-button:hover{
+    scale: 1.1;
+    cursor: pointer;
+    box-shadow: 0 4px 24px rgba(107, 50, 252, 0.45);
+}
+
+.train-button:hover > iconify-icon{
+    rotate: 135deg;
+    scale: 1.2;
+}
+
+.train-button iconify-icon{
+    font-size: 24px;
+    margin-right: 10px;
+    color: #fff;
+    transition: all 0.3s ease;
+}
+
+.train-again-button{
+    padding: 20px;
+}
+
+.selected-folder-path{
+    width: calc(100% - 100px);
+    color: #fff;
+    padding: 5px;
+    font-size: 16px;
+    margin: 20px 8px;
+    background-color: #00000036;
+    cursor: pointer;
+    flex-grow: 1;
+    background-color: transparent;
+    overflow: hidden;
+    white-space: nowrap;
+    direction: rtl;
+}
+
+.save-model-btn{
+    color: #fff;
+    padding: 10px;
+    border: none;
+    outline: none;
+    cursor: pointer;
+    height: 40px;
+    width: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #ff0266;
+    color: #ffffff;
+    text-transform: uppercase;
+    border-style: none;
+    border-radius: 50px;
+    flex-shrink: 0;
+    transition: all 0.4s ease;
+}
+
+.save-model-btn:hover{
+    background-color: #ff0266b3;
+    box-shadow: 0 4px 16px rgba(255, 2, 102, 0.25);
+}
+
+.linear-regression-model-save nav,
+.logistic-regression-model-save nav,
+.decision-tree-model-save nav,
+.random-forest-model-save nav,
+.kmeans-model-save nav,
+.knn-model-save nav {
+    margin-top: 20px;
+    width: 90%;
+    display: flex;
+    height: 50px;
+    justify-content: center;
+    align-items: center;
+    background-color: #2b1d426e;
+    border-radius: 50px;
+    border: 1px solid #4e337a6e;
+    padding: 0px 5px 0px 8px;
+}
+
+.model-name-input{
+    text-align: end;
+    border: none;
+    outline: none;
+    background-color: transparent;
+    width: auto;
+    color: #fff;
+    font-size: 16px;
+    cursor: text;
+    min-width: 50px;
+    max-width: 300px;
+    white-space: nowrap;
+    word-break: break-word;
+    overflow-wrap: break-word;
+    overflow: hidden;
+}
+
+.linear-regression-edit-file,
+.logistic-regression-edit-file,
+.decision-tree-edit-file,
+.random-forest-edit-file,
+.kmeans-edit-file,
+.knn-edit-file{
+    background-color: transparent;
+    text-decoration: underline;
+    color: #6544c0;
+    border: none;
+    outline: none;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.linear-regression-button-nav,
+.logistic-regression-button-nav,
+.decision-tree-button-nav,
+.random-forest-button-nav,
+.kmeans-button-nav,
+.knn-button-nav{
+    flex-direction: row;
+    gap: 25px;
 }

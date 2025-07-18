@@ -1,4 +1,4 @@
-let editors = [];
+let editors = []; 
 let editorStates = [];
 
 function openEditor(directory, language, content){
@@ -208,6 +208,7 @@ function openEditor(directory, language, content){
                 'editor.focusBorder': 'none'
             },
         });
+
     
         editor = monaco.editor.create(document.querySelector(`.window[directory='${normalizePath(directory)}']`), {
             value: content,
@@ -233,6 +234,7 @@ function openEditor(directory, language, content){
                 strings: true,
             },
         });
+
 
         editor.addAction({
             id: 'complete-code-button',
@@ -312,6 +314,8 @@ function openEditor(directory, language, content){
         let timeout;
 
         editor.onDidChangeModelContent(async (event) => {
+        
+            // Update the unsaved sign
             document.querySelector(`.file-bottom[directory='${directory}'] .unsaved-sign`).style.opacity = '1';
             document.querySelector(`.file-bottom[directory='${directory}']`).setAttribute('unsaved', '');
 
@@ -326,7 +330,7 @@ function openEditor(directory, language, content){
                 }
             }
 
-            if (timeout) {
+            if(timeout){
                 clearTimeout(timeout);
             }
 
@@ -381,3 +385,4 @@ function openEditor(directory, language, content){
         // });
     });
 }
+

@@ -1,3 +1,4 @@
+
 const windows = document.querySelector('.windows');
 
 //SCROLLING
@@ -58,6 +59,7 @@ function formatOneSlashPath(path){
 }
 
 function normalizePath(path){
+    if(!path) return '';
     while(path.includes('\\')){
         path = path.replace(/\\/g, '/');
         if(path.includes('//')){
@@ -253,7 +255,9 @@ function closeAllTabs(){
     document.querySelectorAll('.window').forEach(window => {
         window.style.display = 'none';
     }); 
-    document.querySelector('.current-file').classList.remove('current-file');
+    if(document.querySelector('.current-file')){
+        document.querySelector('.current-file').classList.remove('current-file');
+    }
 }
 
 
@@ -263,7 +267,8 @@ const menus = [
     document.getElementById('edit-menu'),
     document.getElementById('run-menu'),
     document.getElementById('terminal-menu'),
-    document.getElementById('gpt-menu')
+    document.getElementById('gpt-menu'),
+    document.getElementById('ml-menu')
 ];
 
 const frameButtons = [
@@ -271,7 +276,8 @@ const frameButtons = [
     document.querySelector('.atr-edit'),
     document.querySelector('.atr-run'),
     document.querySelector('.atr-terminal'),
-    document.querySelector('.atr-gpt')
+    document.querySelector('.atr-gpt'),
+    document.querySelector('.atr-ml')
 ];
 
 frameButtons.forEach((button, index) => {

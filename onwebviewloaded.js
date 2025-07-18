@@ -8,6 +8,12 @@ window.onload = function() {
             loadExplorer();
             loadVisuals();
 
+            pywebview.api.get_explorer().then(function(explorer){
+                if(explorer){
+                    openExplorer();
+                }
+            });
+
             ai_api_key = pywebview.api.get_ai_api_key();
             if(ai_api_key)document.querySelector('.ai-api-tick').style.opacity='1';
             
@@ -22,22 +28,26 @@ window.onload = function() {
     checkPyWebviewAPI();
 };
 
-function loadVisuals(){
-    pywebview.api.get_explorer().then(function(explorer){
-        if(explorer){
-            openExplorer();
-        }
-    });
 
+function loadVisuals(){
     pywebview.api.get_editors().then(function(editorStates){
         pywebview.api.get_current_file().then(function(currentFile){
             pywebview.api.get_bottom_files().then(async function(bottomFiles){
+                document.querySelector('.bottom-files').innerHTML = '';
                 for(const file of bottomFiles){
-                    await bringFile(file.name, normalizePath(file.directory));
+                    if(!file.directory && file.name){
+                        openMLTab(file.name);
+                    }else if(file.name){
+                        await bringFile(file.name, normalizePath(file.directory));
+                    }
                 }
                 
-                if(document.querySelector(`.file-bottom[directory="${normalizePath(currentFile.directory)}"]`)){
-                    await bringFile(currentFile.name, normalizePath(currentFile.directory));
+                if(!currentFile.directory && currentFile.name){
+                    openMLTab(currentFile.name);
+                }else{
+                    if(document.querySelector(`.file-bottom[directory="${normalizePath(currentFile.directory)}"]`)){
+                        await bringFile(currentFile.name, normalizePath(currentFile.directory));
+                    }
                 }
                 
                 setTimeout(() => {

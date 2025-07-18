@@ -9,16 +9,10 @@ function draggingOver(){
 
 function openDroppedItems(folders, files){
     if(folders.length > 0){
-        pywebview.api.set_directory(folders[0]).then(function(path){
-            loadExplorer();
-            if(document.querySelector('.explorer').style.display === 'none' || document.querySelector('.explorer').style.display === ''){
-                openExplorer();
-            }
-        });
+        openFolder(folders);
     }
 
     if(files){
-        const bottomFiles = document.querySelector('.bottom-files');
         files.forEach(file => {
             const name = file.name;
             const directory = normalizePath(file.directory);

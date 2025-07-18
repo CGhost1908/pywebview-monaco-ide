@@ -9,14 +9,10 @@
     <link rel="stylesheet" href="node_modules/@xterm/xterm/css/xterm.css" />
     <script src="node_modules/@xterm/xterm/lib/xterm.js"></script>
     <script src="node_modules/xterm-addon-fit/lib/xterm-addon-fit.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
 </head>
 <body>
-    <div class="file-bottom-menu hidden">
-        <button class="context-menu-button">Close</button>
-        <button class="context-menu-button">Copy File Name</button>
-        <button class="context-menu-button">Copy Path</button>
-        <button class="context-menu-button" id="bottom-file-menu-anchor">Set Anchor for Workspace</button>
-    </div>
+    <div class="context-menu hidden"></div>
     <div class="top-nav">
         <div class="frame">
             <button class="atr-file frame-button">File</button>
@@ -24,6 +20,7 @@
             <button class="atr-run frame-button">Run</button>
             <button class="atr-terminal frame-button">Terminal</button>
             <button class="atr-gpt frame-button">GPT</button>
+            <button class="atr-ml frame-button">ML</button>
         </div>
         <div id="file-menu" class="menu">
             <button class="menu-item"><p>New File</p><p>Ctrl + N</p></button>
@@ -53,6 +50,15 @@
         <div id="gpt-menu" class="menu">
             <button class="menu-item" style="padding: 0 10px;" onclick="openApiPopup()"><p>Enter API Key</p><iconify-icon class="ai-api-tick" icon="qlementine-icons:check-tick-small-16"></iconify-icon></button>
         </div>
+        <div id="ml-menu" class="menu">
+            <button class="menu-item" onclick="openMLTab('linear-regression')"><p>Linear Regression</p><p></p></button>
+            <button class="menu-item" onclick="openMLTab('logistic-regression')"><p>Logistic Regression</p><p></p></button>
+            <button class="menu-item" onclick="openMLTab('decision-tree')">Decision Tree Classifier</button>
+            <button class="menu-item" onclick="openMLTab('random-forest')"><p>Random Forest</p><p></p></button>
+            <button class="menu-item" onclick="openMLTab('knn')"><p>KNN</p><p></p></button>
+            <button class="menu-item" onclick="openMLTab('kmeans')"><p>KMeans </p><p></p></button>
+            <!-- <button class="menu-item" onclick="openMLTab('')"><p></p><p></p></button> -->
+        </div>
         <div class="drag-bar"></div>
         <div class="window-controls">
             <button onclick="relaodWindow()" class="reload-button">Reload</button>
@@ -74,6 +80,297 @@
             </div>
             <div class="terminal-element"></div>
             <div class="home window"></div>
+            <div class="window ml-tab" id="linear-regression-tab">
+                <div class="ml-title">
+                    <h1>Linear Regression</h1>
+                </div>
+                <div class="ml-form" id="linear-regression-form">
+                    <label for="linear-regression-csv" class="linear-regression-csv-label">
+                        <input style="display: none;" type="file" id="linear-regression-csv" accept=".csv" />
+                        <iconify-icon icon="tabler:file-type-csv" width="128px" height="128px" style="padding: 7px; margin-right: 10px; border-radius: 15px; border: 3px dashed #3EB489; color: #3EB489; cursor: pointer;"></iconify-icon>
+                        <p id="linear-regression-file-name">No file selected</p>
+                    </label>
+                    <nav class="linear-regression-nav" style="flex-direction: row; width: 90%;">
+                        <label class="linear-regression-features-label" for="linear-regression-features">
+                            <p>X</p>
+                            <select id="linear-regression-features" multiple size="7"></select>
+                        </label>
+                        <label class="linear-regression-target-label" for="ml-target">
+                            <p>y (must be numerical value)</p>
+                            <select id="linear-regression-target" size="7"></select>
+                        </label>
+                    </nav>
+                    <button class="linear-regression-train-button" disabled><iconify-icon icon="carbon:machine-learning"></iconify-icon>Train Model</button>
+                    <div id="linear-regression-output" class="ml-output"></div>
+                </div>
+                <div class="ml-result" id="linear-regression-loader">
+                    <p style="font-size: 22px; width: 100%; text-align: center;">Training Model</p>
+                    <div class="loader">
+                        <div class="loaderBar"></div>
+                    </div>
+                </div>
+                <div class="ml-result" id="linear-regression-result">
+                    <p class="message"></p>
+                    <nav style="display: flex; width: 100%;">
+                        <div class="linear-regression-result-score"></div>
+                        <div class="linear-regression-model-save">
+                            <p style="font-weight: 800; font-size: 20px; margin: 0;">Save Trained Model</p>
+                            <nav>
+                                <span class="model-name-input" role="textbox" spellcheck="false" onkeydown="if(event.key==='Enter'){event.preventDefault();}" contenteditable>trained_model</span>
+                                <p>.pkl</p>
+                            </nav>
+                            <nav>
+                                <span class="selected-folder-path">C:/</span>
+                                <button class="save-model-btn">Save</button>
+                            </nav>
+                        </div>
+                    </nav>
+                    <button class="train-button train-again-button"><iconify-icon icon="solar:restart-circle-bold"></iconify-icon>Train Again</button>
+                </div>
+            </div>
+            <div class="window ml-tab" id="logistic-regression-tab">
+                <div class="ml-title">
+                    <h1>Logistic Regression</h1>
+                </div>
+                <div class="ml-form" id="logistic-regression-form">
+                    <label for="logistic-regression-csv" class="logistic-regression-csv-label">
+                        <input style="display: none;" type="file" id="logistic-regression-csv" accept=".csv" />
+                        <iconify-icon icon="tabler:file-type-csv" width="128px" height="128px" style="padding: 7px; margin-right: 10px; border-radius: 15px; border: 3px dashed #3EB489; color: #3EB489; cursor: pointer;"></iconify-icon>
+                        <p id="logistic-regression-file-name">No file selected</p>
+                    </label>
+                    <nav class="logistic-regression-nav" style="flex-direction: row; width: 90%;">
+                        <label class="logistic-regression-features-label" for="logistic-regression-features">
+                            <p>X</p>
+                            <select id="logistic-regression-features" multiple size="7"></select>
+                        </label>
+                        <label class="logistic-regression-target-label" for="ml-target">
+                            <p>y</p>
+                            <select id="logistic-regression-target" size="7"></select>
+                        </label>
+                    </nav>
+                    <nav class="logistic-regression-button-nav">
+                        <button class="logistic-regression-edit-button" onclick="openTrainModelFile('logistic-regression')"><iconify-icon icon="tabler:edit"></iconify-icon>Edit Train File</button>
+                        <button class="logistic-regression-train-button" disabled><iconify-icon icon="carbon:machine-learning"></iconify-icon>Train Model</button>
+                    </nav>
+                    <div id="logistic-regression-output" class="ml-output"></div>
+                </div>
+                <div class="ml-result" id="logistic-regression-loader">
+                    <p style="font-size: 22px; width: 100%; text-align: center;">Training Model</p>
+                    <div class="loader">
+                        <div class="loaderBar"></div>
+                    </div>
+                </div>
+                <div class="ml-result" id="logistic-regression-result">
+                    <p class="message"></p>
+                    <nav style="display: flex; width: 100%;">
+                        <div class="logistic-regression-result-score"></div>
+                        <div class="logistic-regression-model-save">
+                            <p style="font-weight: 800; font-size: 20px; margin: 0;">Save Trained Model</p>
+                            <nav>
+                                <span class="model-name-input" role="textbox" spellcheck="false" onkeydown="if(event.key==='Enter'){event.preventDefault();}" contenteditable>trained_model</span>
+                                <p>.pkl</p>
+                            </nav>
+                            <nav>
+                                <span class="selected-folder-path">C:/</span>
+                                <button class="save-model-btn">Save</button>
+                            </nav>
+                        </div>
+                    </nav>
+                    <button class="train-button train-again-button"><iconify-icon icon="solar:restart-circle-bold"></iconify-icon>Train Again</button>
+                </div>
+            </div>
+            <div class="window ml-tab" id="decision-tree-tab">
+                <div class="ml-title">
+                    <h1>Decision Tree Classifier</h1>
+                </div>
+                <div class="ml-form" id="decision-tree-form">
+                    <label for="decision-tree-csv" class="decision-tree-csv-label">
+                        <input style="display: none;" type="file" id="decision-tree-csv" accept=".csv" />
+                        <iconify-icon icon="tabler:file-type-csv" width="128px" height="128px" style="padding: 7px; margin-right: 10px; border-radius: 15px; border: 3px dashed #3EB489; color: #3EB489; cursor: pointer;"></iconify-icon>
+                        <p id="decision-tree-file-name">No file selected</p>
+                    </label>
+                    <nav class="decision-tree-nav" style="flex-direction: row; width: 90%;">
+                        <label class="decision-tree-features-label" for="decision-tree-features">
+                            <p>X</p>
+                            <select id="decision-tree-features" multiple size="7"></select>
+                        </label>
+                        <label class="decision-tree-target-label" for="ml-target">
+                            <p>y</p>
+                            <select id="decision-tree-target" size="7"></select>
+                        </label>
+                    </nav>
+                    <button class="decision-tree-train-button" disabled><iconify-icon icon="carbon:machine-learning"></iconify-icon>Train Model</button>
+                    <div id="decision-tree-output" class="ml-output"></div>
+                </div>
+                <div class="ml-result" id="decision-tree-loader">
+                    <p style="font-size: 22px; width: 100%; text-align: center;">Training Model</p>
+                    <div class="loader">
+                        <div class="loaderBar"></div>
+                    </div>
+                </div>
+                <div class="ml-result" id="decision-tree-result">
+                    <p class="message"></p>
+                    <nav style="display: flex; width: 100%;">
+                        <div class="decision-tree-result-score"></div>
+                        <div class="decision-tree-model-save">
+                            <p style="font-weight: 800; font-size: 20px; margin: 0;">Save Trained Model</p>
+                            <nav>
+                                <span class="model-name-input" role="textbox" spellcheck="false" onkeydown="if(event.key==='Enter'){event.preventDefault();}" contenteditable>trained_model</span>
+                                <p>.pkl</p>
+                            </nav>
+                            <nav>
+                                <span class="selected-folder-path">C:/</span>
+                                <button class="save-model-btn">Save</button>
+                            </nav>
+                        </div>
+                    </nav>
+                    <button class="train-button train-again-button"><iconify-icon icon="solar:restart-circle-bold"></iconify-icon>Train Again</button>
+                </div>
+            </div>
+            <div class="window ml-tab" id="random-forest-tab">
+                <div class="ml-title">
+                    <h1>Random Forest Classifier</h1>
+                </div>
+                <div class="ml-form" id="random-forest-form">
+                    <label for="random-forest-csv" class="random-forest-csv-label">
+                        <input style="display: none;" type="file" id="random-forest-csv" accept=".csv" />
+                        <iconify-icon icon="tabler:file-type-csv" width="128px" height="128px" style="padding: 7px; margin-right: 10px; border-radius: 15px; border: 3px dashed #3EB489; color: #3EB489; cursor: pointer;"></iconify-icon>
+                        <p id="random-forest-file-name">No file selected</p>
+                    </label>
+                    <nav class="random-forest-nav" style="flex-direction: row; width: 90%;">
+                        <label class="random-forest-features-label" for="random-forest-features">
+                            <p>X</p>
+                            <select id="random-forest-features" multiple size="7"></select>
+                        </label>
+                        <label class="random-forest-target-label" for="ml-target">
+                            <p>y</p>
+                            <select id="random-forest-target" size="7"></select>
+                        </label>
+                    </nav>
+                    <button class="random-forest-train-button" disabled><iconify-icon icon="carbon:machine-learning"></iconify-icon>Train Model</button>
+                    <div id="random-forest-output" class="ml-output"></div>
+                </div>
+                <div class="ml-result" id="random-forest-loader">
+                    <p style="font-size: 22px; width: 100%; text-align: center;">Training Model</p>
+                    <div class="loader">
+                        <div class="loaderBar"></div>
+                    </div>
+                </div>
+                <div class="ml-result" id="random-forest-result">
+                    <p class="message"></p>
+                    <nav style="display: flex; width: 100%;">
+                        <div class="random-forest-result-score"></div>
+                        <div class="random-forest-model-save">
+                            <p style="font-weight: 800; font-size: 20px; margin: 0;">Save Trained Model</p>
+                            <nav>
+                                <span class="model-name-input" role="textbox" spellcheck="false" onkeydown="if(event.key==='Enter'){event.preventDefault();}" contenteditable>trained_model</span>
+                                <p>.pkl</p>
+                            </nav>
+                            <nav>
+                                <span class="selected-folder-path">C:/</span>
+                                <button class="save-model-btn">Save</button>
+                            </nav>
+                        </div>
+                    </nav>
+                    <button class="train-button train-again-button"><iconify-icon icon="solar:restart-circle-bold"></iconify-icon>Train Again</button>
+                </div>
+            </div>
+            <div class="window ml-tab" id="knn-tab">
+                <div class="ml-title">
+                    <h1>KNeighbors Classifier</h1>
+                </div>
+                <div class="ml-form" id="knn-form">
+                    <label for="knn-csv" class="knn-csv-label">
+                        <input style="display: none;" type="file" id="knn-csv" accept=".csv" />
+                        <iconify-icon icon="tabler:file-type-csv" width="128px" height="128px" style="padding: 7px; margin-right: 10px; border-radius: 15px; border: 3px dashed #3EB489; color: #3EB489; cursor: pointer;"></iconify-icon>
+                        <p id="knn-file-name">No file selected</p>
+                    </label>
+                    <nav class="knn-nav" style="flex-direction: row; width: 90%;">
+                        <label class="knn-features-label" for="knn-features">
+                            <p>X</p>
+                            <select id="knn-features" multiple size="7"></select>
+                        </label>
+                        <label class="knn-target-label" for="ml-target">
+                            <p>y</p>
+                            <select id="knn-target" size="7"></select>
+                        </label>
+                    </nav>
+                    <button class="knn-train-button" disabled><iconify-icon icon="carbon:machine-learning"></iconify-icon>Train Model</button>
+                    <div id="knn-output" class="ml-output"></div>
+                </div>
+                <div class="ml-result" id="knn-loader">
+                    <p style="font-size: 22px; width: 100%; text-align: center;">Training Model</p>
+                    <div class="loader">
+                        <div class="loaderBar"></div>
+                    </div>
+                </div>
+                <div class="ml-result" id="knn-result">
+                    <p class="message"></p>
+                    <nav style="display: flex; width: 100%;">
+                        <div class="knn-result-score"></div>
+                        <div class="knn-model-save">
+                            <p style="font-weight: 800; font-size: 20px; margin: 0;">Save Trained Model</p>
+                            <nav>
+                                <span class="model-name-input" role="textbox" spellcheck="false" onkeydown="if(event.key==='Enter'){event.preventDefault();}" contenteditable>trained_model</span>
+                                <p>.pkl</p>
+                            </nav>
+                            <nav>
+                                <span class="selected-folder-path">C:/</span>
+                                <button class="save-model-btn">Save</button>
+                            </nav>
+                        </div>
+                    </nav>
+                    <button class="train-button train-again-button"><iconify-icon icon="solar:restart-circle-bold"></iconify-icon>Train Again</button>
+                </div>
+            </div>
+            <div class="window ml-tab" id="kmeans-tab">
+                <div class="ml-title">
+                    <h1>KMeans</h1>
+                </div>
+                <div class="ml-form" id="kmeans-form">
+                    <label for="kmeans-csv" class="kmeans-csv-label">
+                        <input style="display: none;" type="file" id="kmeans-csv" accept=".csv" />
+                        <iconify-icon icon="tabler:file-type-csv" width="128px" height="128px" style="padding: 7px; margin-right: 10px; border-radius: 15px; border: 3px dashed #3EB489; color: #3EB489; cursor: pointer;"></iconify-icon>
+                        <p id="kmeans-file-name">No file selected</p>
+                    </label>
+                    <nav class="kmeans-nav" style="flex-direction: row; width: 90%;">
+                        <label class="kmeans-features-label" for="kmeans-features">
+                            <p>X</p>
+                            <select id="kmeans-features" multiple size="7"></select>
+                        </label>
+                        <label class="kmeans-target-label" for="ml-target">
+                            <p>y</p>
+                            <select id="kmeans-target" size="7" disabled></select>
+                        </label>
+                    </nav>
+                    <button class="kmeans-train-button" disabled><iconify-icon icon="carbon:machine-learning"></iconify-icon>Train Model</button>
+                    <div id="kmeans-output" class="ml-output"></div>
+                </div>
+                <div class="ml-result" id="kmeans-loader">
+                    <p style="font-size: 22px; width: 100%; text-align: center;">Training Model</p>
+                    <div class="loader">
+                        <div class="loaderBar"></div>
+                    </div>
+                </div>
+                <div class="ml-result" id="kmeans-result">
+                    <p class="message"></p>
+                    <nav style="display: flex; width: 100%;">
+                        <div class="kmeans-result-score"></div>
+                        <div class="kmeans-model-save">
+                            <p style="font-weight: 800; font-size: 20px; margin: 0;">Save Trained Model</p>
+                            <nav>
+                                <span class="model-name-input" role="textbox" spellcheck="false" onkeydown="if(event.key==='Enter'){event.preventDefault();}" contenteditable>trained_model</span>
+                                <p>.pkl</p>
+                            </nav>
+                            <nav>
+                                <span class="selected-folder-path">C:/</span>
+                                <button class="save-model-btn">Save</button>
+                            </nav>
+                        </div>
+                    </nav>
+                    <button class="train-button train-again-button"><iconify-icon icon="solar:restart-circle-bold"></iconify-icon>Train Again</button>
+                </div>
+            </div>
         </div>
         <div class="chat-window">
             <div class="chat-window-header">
@@ -129,14 +426,17 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 <script src="script.js"></script>
+<script src="lps.js"></script>
 <script src="code.js"></script>
 <script src="language.js"></script>
 <script src="open-file.js"></script>
+<script src="open-folder.js"></script>
 <script src="bring-file.js"></script>
 <script src="reload.js"></script>
 <script src="interactlib.js"></script>
 <script src="save.js"></script>
 <script src="window.js"></script>
+<script src="machine-learning.js"></script>
 <script src="terminal.js"></script>
 <script src="run.js"></script>
 <script src="right-click.js"></script>
