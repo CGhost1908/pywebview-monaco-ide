@@ -31,9 +31,21 @@ from models.kmeans import train_kmeans, save_kmeans_model
 autolinear = AutoLinearRegression()
 autologistic = AutoLogisticRegression()
 
-client = genai.Client(api_key="AIzaSyAGmGlCZm8QQQe9jdOxpjBlnrCmeqJJ7NM")
+# Load environment variables from .env
+env_file = os.path.join(os.path.dirname(__file__), ".env")
+if os.path.exists(env_file):
+    with open(env_file, "r", encoding="utf-8") as f:
+        for line in f:
+            line = line.strip()
+            if line and not line.startswith("#") and "=" in line:
+                k, v = line.split("=", 1)
+                os.environ.setdefault(k.strip(), v.strip().strip("'\""))
+
+gemini_key = os.environ.get("GEMINI_API_KEY") or os.environ.get("GOOGLE_API_KEY")
+client = genai.Client(api_key=gemini_key) if gemini_key else None
 
 CONFIG_FILE = "config.json"
+
 
 process = None
 reader_task = None
@@ -398,12 +410,16 @@ class API:
             return self.config["ai_chat"]
         
     def complete_code(self, prompt):
+        if not client:
+            return "Gemini API key is not configured. Please set GEMINI_API_KEY in .env."
         response = client.models.generate_content(
             model="gemini-1.5-flash-8b", contents=f"Just write the rest of your code without any comment as text not code block: {prompt}"
         )
         return response.text
     
     def answer_prompt(self, history):
+        if not client:
+            return "Gemini API key is not configured. Please set GEMINI_API_KEY in .env."
         response = client.models.generate_content(
             model="gemini-1.5-flash-8b",
             contents=history
